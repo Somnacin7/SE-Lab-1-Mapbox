@@ -1,11 +1,14 @@
 package com.mapbox.mapboxsdk.views;
 
 import android.content.Context;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.overlay.Marker;
 
@@ -134,7 +137,7 @@ public class InfoWindow {
      *
      * @param overlayItem the tapped overlay item
      */
-    public void onOpen(Marker overlayItem) {
+    public void onOpen(final Marker overlayItem) {
         String title = overlayItem.getTitle();
         ((TextView) mView.findViewById(mTitleId /*R.id.title*/)).setText(title);
         String snippet = overlayItem.getDescription();
@@ -146,8 +149,31 @@ public class InfoWindow {
         if ("".equals(subDesc)) {
             subDescText.setVisibility(View.GONE);
         } else {
-            subDescText.setText(subDesc);
+            subDescText.setClickable(true);
+            subDescText.setText(Html.fromHtml(subDesc));
             subDescText.setVisibility(View.VISIBLE);
+            subDescText.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    String subDesc = overlayItem.getSubDescription();
+                    if ("<a href='#'>Navigate Here!</a>".equals(subDesc)) {
+                        Toast.makeText(mMapView.getContext(), "It's clickable?", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+            /* dataButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (dataButton.getText().equals(getString(R.string.dataOn))) {
+                    mapView.setUseDataConnection(false);
+                    mapView.getTileProvider().clearTileMemoryCache();
+                    dataButton.setText(R.string.dataOff);
+                } else {
+                    mapView.setUseDataConnection(true);
+                    dataButton.setText(R.string.dataOn);
+                }
+            }
+        });*/
         }
     }
 

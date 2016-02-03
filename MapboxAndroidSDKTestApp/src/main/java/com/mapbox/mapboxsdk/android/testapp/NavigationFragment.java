@@ -92,6 +92,7 @@ public class NavigationFragment extends Fragment {
 
                 // Make and add marker
                 Marker marker = new Marker(mapView, address1.getAddressLine(0), line2, latlng);
+                marker.setSubDescription("<a href='#'>Navigate Here!</a>");
                 marker.setIcon(new Icon(getActivity(), Icon.Size.LARGE, "marker-stroked", "FF0000"));
                 mapView.addMarker((marker));
 
