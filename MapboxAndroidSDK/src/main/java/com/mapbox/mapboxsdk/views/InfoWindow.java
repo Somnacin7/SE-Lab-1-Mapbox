@@ -31,6 +31,7 @@ public class InfoWindow {
     static int mDescriptionId = 0;
     static int mSubDescriptionId = 0;
     static int mImageId = 0;
+    private TextView subDescText;
 
     public InfoWindow(int layoutResId, MapView mapView) {
         mMapView = mapView;
@@ -144,7 +145,7 @@ public class InfoWindow {
         ((TextView) mView.findViewById(mDescriptionId /*R.id.description*/)).setText(snippet);
 
         //handle sub-description, hiding or showing the text view:
-        TextView subDescText = (TextView) mView.findViewById(mSubDescriptionId);
+        subDescText = (TextView) mView.findViewById(mSubDescriptionId);
         String subDesc = overlayItem.getSubDescription();
         if ("".equals(subDesc)) {
             subDescText.setVisibility(View.GONE);
@@ -152,33 +153,19 @@ public class InfoWindow {
             subDescText.setClickable(true);
             subDescText.setText(Html.fromHtml(subDesc));
             subDescText.setVisibility(View.VISIBLE);
-            subDescText.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    String subDesc = overlayItem.getSubDescription();
-                    if ("<a href='#'>Navigate Here!</a>".equals(subDesc)) {
-                        Toast.makeText(mMapView.getContext(), "It's clickable?", Toast.LENGTH_SHORT).show();
-                    }
-                }
-            });
-            /* dataButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (dataButton.getText().equals(getString(R.string.dataOn))) {
-                    mapView.setUseDataConnection(false);
-                    mapView.getTileProvider().clearTileMemoryCache();
-                    dataButton.setText(R.string.dataOff);
-                } else {
-                    mapView.setUseDataConnection(true);
-                    dataButton.setText(R.string.dataOn);
-                }
+            if (overlayItem.getListener() != null) {
+                subDescText.setClickable(true);
+                subDescText.setOnClickListener(overlayItem.getListener());
             }
-        });*/
         }
     }
 
     public void onClose() {
         //by default, do nothing
+    }
+
+    public TextView getSubDescText(){
+        return subDescText;
     }
 
     public InfoWindow setBoundMarker(Marker aBoundMarker) {

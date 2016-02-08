@@ -10,6 +10,7 @@ import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.overlay.Icon;
@@ -20,9 +21,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public class NavigationFragment extends Fragment {
+public class NavigationFragment extends Fragment implements View.OnClickListener
+{
 
     private MapView mapView;
+    private List<Marker> markers;
 
     private static final String ARG_ADDRESS = "address";
 
@@ -56,6 +59,8 @@ public class NavigationFragment extends Fragment {
         if (getArguments() != null) {
             address = getArguments().getString(ARG_ADDRESS);
         }
+
+        markers = new ArrayList<>();
     }
 
     @Override
@@ -68,6 +73,10 @@ public class NavigationFragment extends Fragment {
         mapView = (MapView) view.findViewById(R.id.markersMapView);
 
         addMarker(address);
+
+        for (Marker m : markers) {
+            m.setDescOnClickListener(this);
+        }
 
         return view;
     }
@@ -95,10 +104,17 @@ public class NavigationFragment extends Fragment {
                 marker.setSubDescription("<a href='#'>Navigate Here!</a>");
                 marker.setIcon(new Icon(getActivity(), Icon.Size.LARGE, "marker-stroked", "FF0000"));
                 mapView.addMarker((marker));
-
+                markers.add(marker);
             }
         } catch (Exception e) {
             System.out.print(e.getMessage());
         }
+    }
+
+    @Override
+    public void onClick(View v)
+    {
+        // TODO: replace this toast with the actual onClick behavior
+        Toast.makeText(getActivity().getApplicationContext(), "It works.", Toast.LENGTH_LONG).show();
     }
 }
