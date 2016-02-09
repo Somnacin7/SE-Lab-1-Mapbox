@@ -8,8 +8,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.mapbox.mapboxsdk.views.MapView;
+
+import java.util.regex.Pattern;
 
 public class SearchFragment extends Fragment {
 
@@ -48,16 +51,26 @@ public class SearchFragment extends Fragment {
         search.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 // This is where search function stuff goes.
                 String userInput = address.getText().toString();
 
-                Fragment f = NavigationFragment.newInstance(userInput);
+                if (checkInput(userInput))
+                {
+                    Fragment f = NavigationFragment.newInstance(userInput);
 
-                // Insert the fragment by replacing any existing fragment
-                FragmentManager fm = getActivity().getSupportFragmentManager();
-                fm.beginTransaction()
-                        .replace(R.id.content_frame, f)
-                        .commit();
+                    // Insert the fragment by replacing any existing fragment
+                    FragmentManager fm = getActivity().getSupportFragmentManager();
+                    fm.beginTransaction()
+                            .replace(R.id.content_frame, f)
+                            .commit();
+                }
+                else
+                {
+                    Toast.makeText(getActivity().getApplicationContext(),
+                            "Address must be alphanumeric, and a length between 1 and 50",
+                            Toast.LENGTH_LONG).show();
+                }
             }
         });
 
@@ -68,7 +81,14 @@ public class SearchFragment extends Fragment {
     private boolean checkInput(String input)
     {
 
+        boolean isAlphanumeric = true;
+        for (int i = 0; i < input.length(); i++)
+        {
+            if (!(Character.isLetterOrDigit(input.charAt(i)) || input.charAt(i) == ' '))
+                isAlphanumeric = false;
+        }
+        boolean isCorrectLength = input.length() > 0 && input.length() <= 50;
 
-        return true;
+        return isAlphanumeric && isCorrectLength;
     }
 }
