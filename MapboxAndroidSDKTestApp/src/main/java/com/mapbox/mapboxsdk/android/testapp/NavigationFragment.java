@@ -99,7 +99,8 @@ public class NavigationFragment extends Fragment implements View.OnClickListener
                 mapView.setCenter(latLng);
                 mapView.setZoom(14);
 
-                String line2 = address1.getLocality() + ", " + address1.getAdminArea();// + '\n' + Html.fromHtml("<a href='#'>Navigate Here</a>");
+                String line2 = ((address1.getLocality() != null) ? address1.getLocality() : "") + ", " +
+                        ((address1.getAdminArea() != null) ? address1.getLocality() : "");
 
                 // Make and add marker
                 Marker marker = new Marker(mapView, address1.getAddressLine(0), line2, latLng);

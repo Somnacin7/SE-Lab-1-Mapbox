@@ -51,7 +51,6 @@ public class SearchFragment extends Fragment {
                 // This is where search function stuff goes.
                 String userInput = address.getText().toString();
 
-
                 Fragment f = NavigationFragment.newInstance(userInput);
 
                 // Insert the fragment by replacing any existing fragment
@@ -64,5 +63,12 @@ public class SearchFragment extends Fragment {
 
         return view;
 
+    }
+
+    private boolean checkInput(String input)
+    {
+
+
+        return true;
     }
 }
