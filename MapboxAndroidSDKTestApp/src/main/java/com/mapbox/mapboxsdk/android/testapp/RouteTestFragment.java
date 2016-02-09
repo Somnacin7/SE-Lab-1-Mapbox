@@ -1,11 +1,15 @@
 package com.mapbox.mapboxsdk.android.testapp;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.cocoahero.android.geojson.FeatureCollection;
 import com.cocoahero.android.geojson.GeoJSON;
@@ -23,6 +27,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Branden on 2/5/2016.
@@ -63,8 +68,6 @@ public class RouteTestFragment extends Fragment
         double lng = bundle.getDouble(LNG_KEY);
         destination = new LatLng(lat, lng);
 
-        //TODO  get this from first part of feature 4
-//        LatLng latlong1 = new LatLng(38.91, -77.03);
 
         new PaintRoute().execute(destination,mv.getUserLocation());
 
@@ -81,6 +84,7 @@ public class RouteTestFragment extends Fragment
 
     class PaintRoute extends AsyncTask<LatLng,Void,JSONObject>
     {
+        // Get JSON from api and
         @Override
         protected JSONObject doInBackground(LatLng... params) {
             JSONObject json = new JSONObject();
@@ -101,51 +105,99 @@ public class RouteTestFragment extends Fragment
 
         }
 
-
+        // show dialog and draw route
+        // TODO: make code prettier
         @Override
-        protected void onPostExecute(JSONObject jsonObject) {
+        protected void onPostExecute(JSONObject json) {
             try
             {
-                ArrayList<Object> uiObjects = DataLoadingUtils.createUIObjectsFromGeoJSONObjects(JsonToFeatureCollection(jsonObject), null);
-                for (Object obj : uiObjects) {
-                    if (obj instanceof Marker) {
-                        mv.addMarker((Marker) obj);
-                    } else if (obj instanceof PathOverlay) {
-                        mv.getOverlays().add((PathOverlay) obj);
+                final String featureCollectionString = "{  \"type\": \"FeatureCollection\", \"features\": [ ";
+                final String feature = "{\"type\":\"feature\",\"geometry\":";
+                final String origin = JSONUtils.optString(json, "origin");
+                final String destination = JSONUtils.optString(json, "destination");
+                final JSONArray routes = json.getJSONArray("routes");
+
+                if (routes.length() > 1)
+                {
+                    List<String> routesText = new ArrayList<>();
+                    for (int i = 0; i < routes.length(); i++)
+                    {
+                        int distInMeters = Integer.parseInt(JSONUtils.optString(routes.getJSONObject(i), "distance"));
+                        double distInMiles = distInMeters * .000621371;
+
+                        routesText.add(String.format("Route " + (i + 1) + "\t %1$.1f miles", distInMiles));
                     }
+
+                    AlertDialog dialog = new AlertDialog.Builder(getActivity())
+                            .setTitle("Choose Route")
+                            .setItems(routesText.toArray(new CharSequence[routesText.size()]), new DialogInterface.OnClickListener()
+                            {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which)
+                                {
+                                    try
+                                    {
+                                        String route = JSONUtils.optString(routes.getJSONObject(which), "geometry");
+
+
+                                        FeatureCollection featureCollection = (FeatureCollection) GeoJSON.parse(featureCollectionString + destination + "," + feature + route + "}" + "," + origin + "] }");
+                                        ArrayList<Object> uiObjects = DataLoadingUtils.createUIObjectsFromGeoJSONObjects(featureCollection, null);
+                                        for (Object obj : uiObjects)
+                                        {
+                                            if (obj instanceof Marker)
+                                            {
+                                                mv.addMarker((Marker) obj);
+                                            } else if (obj instanceof PathOverlay)
+                                            {
+                                                mv.getOverlays().add((PathOverlay) obj);
+                                            }
+                                        }
+                                        if (uiObjects.size() > 0)
+                                        {
+                                            mv.invalidate();
+                                        }
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            })
+                            .create();
+                    dialog.show();
                 }
-                if (uiObjects.size() > 0) {
-                    mv.invalidate();
+                else
+                {
+                    try
+                    {
+                        String route = JSONUtils.optString(routes.getJSONObject(0), "geometry");
+
+                        FeatureCollection featureCollection = (FeatureCollection) GeoJSON.parse(featureCollectionString + destination + "," + feature + route + "}" + "," + origin + "] }");
+                        ArrayList<Object> uiObjects = DataLoadingUtils.createUIObjectsFromGeoJSONObjects(featureCollection, null);
+                        for (Object obj : uiObjects)
+                        {
+                            if (obj instanceof Marker)
+                            {
+                                mv.addMarker((Marker) obj);
+                            } else if (obj instanceof PathOverlay)
+                            {
+                                mv.getOverlays().add((PathOverlay) obj);
+                            }
+                        }
+                        if (uiObjects.size() > 0)
+                        {
+                            mv.invalidate();
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        e.printStackTrace();
+                    }
                 }
             }
             catch (Exception e) {
                 System.out.print(e.getMessage());
             }
-        }
-
-
-        // Creates GeoJSON FeatureCollection from the json returned from mapbox directions api
-        FeatureCollection JsonToFeatureCollection(JSONObject json) throws JSONException {
-
-            String featureCollectionString = "{  \"type\": \"FeatureCollection\", \"features\": [ ";
-            String feature = "{\"type\":\"feature\",\"geometry\":";
-            String origin = JSONUtils.optString(json, "origin");
-            String destination = JSONUtils.optString(json, "destination");
-            JSONArray routes = json.getJSONArray("routes");
-
-            //TODO feature5 pick the route from menu. To get distance I think it is JSONUtils.optString(routes.getJSONObject(i),"distance")
-            String route = JSONUtils.optString(routes.getJSONObject(0), "geometry");
-
-            try
-            {
-                FeatureCollection featureCollection = (FeatureCollection) GeoJSON.parse(featureCollectionString + destination + "," + feature + route + "}" + "," + origin + "] }");
-                return featureCollection;
-            }
-            catch (Exception e)
-            {
-                e.printStackTrace();
-            }
-            return null;
         }
     }
 }
