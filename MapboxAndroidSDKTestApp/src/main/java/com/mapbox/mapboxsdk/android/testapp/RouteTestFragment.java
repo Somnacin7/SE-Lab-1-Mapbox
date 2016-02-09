@@ -1,8 +1,8 @@
 package com.mapbox.mapboxsdk.android.testapp;
 
-import android.app.Fragment;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +16,7 @@ import com.mapbox.mapboxsdk.overlay.PathOverlay;
 import com.mapbox.mapboxsdk.overlay.UserLocationOverlay;
 import com.mapbox.mapboxsdk.util.DataLoadingUtils;
 import com.mapbox.mapboxsdk.views.MapView;
+import com.squareup.okhttp.Route;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -26,9 +27,25 @@ import java.util.ArrayList;
 /**
  * Created by Branden on 2/5/2016.
  */
-public class RouteTestFragment extends Fragment {
+public class RouteTestFragment extends Fragment
+{
 
     private MapView mv;
+
+    private LatLng destination;
+    public static final String LAT_KEY = "latitude";
+    public static final String LNG_KEY = "longitude";
+
+    public static RouteTestFragment newInstance(double lat, double lng)
+    {
+        RouteTestFragment frag = new RouteTestFragment();
+        Bundle bundle = new Bundle();
+        bundle.putDouble(LAT_KEY, lat);
+        bundle.putDouble(LNG_KEY, lng);
+        frag.setArguments(bundle);
+        return frag;
+    }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -41,10 +58,15 @@ public class RouteTestFragment extends Fragment {
         mv.setUserLocationTrackingMode(UserLocationOverlay.TrackingMode.FOLLOW);
         mv.setUserLocationRequiredZoom(12);
 
-        //TODO  get this from first part of feature 4
-        LatLng latlong1 = new LatLng(38.91, -77.03);
+        Bundle bundle = getArguments();
+        double lat = bundle.getDouble(LAT_KEY);
+        double lng = bundle.getDouble(LNG_KEY);
+        destination = new LatLng(lat, lng);
 
-        new PaintRoute().execute(latlong1,mv.getUserLocation());
+        //TODO  get this from first part of feature 4
+//        LatLng latlong1 = new LatLng(38.91, -77.03);
+
+        new PaintRoute().execute(destination,mv.getUserLocation());
 
         // Use this for debug since I gps location isn't working with emulator
         /*

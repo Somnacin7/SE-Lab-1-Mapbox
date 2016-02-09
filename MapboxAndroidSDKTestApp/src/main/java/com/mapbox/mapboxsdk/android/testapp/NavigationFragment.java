@@ -6,6 +6,7 @@ import android.location.Geocoder;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,6 +32,7 @@ public class NavigationFragment extends Fragment implements View.OnClickListener
 
     // TODO: Rename and change types of parameters
     private String address;
+    private LatLng latLng;
 
 
     public NavigationFragment() {
@@ -93,14 +95,14 @@ public class NavigationFragment extends Fragment implements View.OnClickListener
             }
             if (geoResults.size()>0) {
                 Address address1 = geoResults.get(0);
-                LatLng latlng = new  LatLng(address1.getLatitude(), address1.getLongitude());
-                mapView.setCenter(latlng);
+                latLng = new  LatLng(address1.getLatitude(), address1.getLongitude());
+                mapView.setCenter(latLng);
                 mapView.setZoom(14);
 
                 String line2 = address1.getLocality() + ", " + address1.getAdminArea();// + '\n' + Html.fromHtml("<a href='#'>Navigate Here</a>");
 
                 // Make and add marker
-                Marker marker = new Marker(mapView, address1.getAddressLine(0), line2, latlng);
+                Marker marker = new Marker(mapView, address1.getAddressLine(0), line2, latLng);
                 marker.setSubDescription("<a href='#'>Navigate Here!</a>");
                 marker.setIcon(new Icon(getActivity(), Icon.Size.LARGE, "marker-stroked", "FF0000"));
                 mapView.addMarker((marker));
@@ -114,7 +116,11 @@ public class NavigationFragment extends Fragment implements View.OnClickListener
     @Override
     public void onClick(View v)
     {
-        // TODO: replace this toast with the actual onClick behavior
-        Toast.makeText(getActivity().getApplicationContext(), "It works.", Toast.LENGTH_LONG).show();
+        RouteTestFragment frag = RouteTestFragment.newInstance(latLng.getLatitude(), latLng.getLongitude());
+
+        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        fragmentManager.beginTransaction()
+                .replace(R.id.content_frame, frag)
+                .commit();
     }
 }
