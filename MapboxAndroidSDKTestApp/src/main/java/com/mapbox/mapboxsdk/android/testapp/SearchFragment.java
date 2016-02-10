@@ -84,7 +84,12 @@ public class SearchFragment extends Fragment {
         boolean isAlphanumeric = true;
         for (int i = 0; i < input.length(); i++)
         {
-            if (!(Character.isLetterOrDigit(input.charAt(i)) || input.charAt(i) == ' '))
+            if (!(Character.isLetterOrDigit(input.charAt(i)) ||
+                    input.charAt(i) == ' ' ||
+                    input.charAt(i) == ',' ||
+                    input.charAt(i) == '.' ||
+                    input.charAt(i) == '-'
+            ))
                 isAlphanumeric = false;
         }
         boolean isCorrectLength = input.length() > 0 && input.length() <= 50;
