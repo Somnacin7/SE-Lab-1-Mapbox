@@ -109,11 +109,9 @@ public class NavigationFragment extends Fragment implements View.OnClickListener
                 mapView.setCenter(latLng);
                 mapView.setZoom(14);
 
-                String line2 = ((address1.getLocality() != null) ? address1.getLocality() : "") + ", " +
-                        ((address1.getAdminArea() != null) ? address1.getLocality() : "");
-
                 // Make and add marker
-                Marker marker = new Marker(mapView, address1.getAddressLine(0), line2, latLng);
+                Marker marker = new Marker(mapView, address1.getAddressLine(0),((address1.getLocality() != null) ? address1.getLocality() : "") + ", " +
+                        ((address1.getAdminArea() != null) ? address1.getLocality() : "") , latLng);
                 marker.setSubDescription("<a href='#'>Navigate Here!</a>");
                 marker.setIcon(new Icon(getActivity(), Icon.Size.LARGE, "marker-stroked", "FF0000"));
                 mapView.addMarker((marker));
@@ -127,11 +125,8 @@ public class NavigationFragment extends Fragment implements View.OnClickListener
     @Override
     public void onClick(View v)
     {
-        RouteTestFragment frag = RouteTestFragment.newInstance(latLng.getLatitude(), latLng.getLongitude());
-
-        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-        fragmentManager.beginTransaction()
-                .replace(R.id.content_frame, frag)
+        getActivity().getSupportFragmentManager().beginTransaction()
+                .replace(R.id.content_frame, RouteTestFragment.newInstance(latLng.getLatitude(), latLng.getLongitude()))
                 .commit();
     }
 }
