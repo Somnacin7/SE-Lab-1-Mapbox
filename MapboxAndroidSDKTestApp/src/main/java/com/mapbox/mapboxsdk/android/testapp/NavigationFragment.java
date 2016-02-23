@@ -1,10 +1,14 @@
 package com.mapbox.mapboxsdk.android.testapp;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.text.Html;
@@ -14,17 +18,21 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
+import com.mapbox.mapboxsdk.api.ILatLng;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.overlay.Icon;
 import com.mapbox.mapboxsdk.overlay.Marker;
 import com.mapbox.mapboxsdk.views.MapView;
+import com.mapbox.mapboxsdk.views.MapViewListener;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public class NavigationFragment extends Fragment implements View.OnClickListener
+public class NavigationFragment extends Fragment implements View.OnClickListener, MapViewListener
 {
+
+    private static final String CONTACT_MANAGER_NAME = "com.example.guilhermecortes.contactmanager";
 
     private MapView mapView;
     private List<Marker> markers;
@@ -83,6 +91,7 @@ public class NavigationFragment extends Fragment implements View.OnClickListener
 
         // Setup Map
         mapView = (MapView) view.findViewById(R.id.markersMapView);
+        mapView.setMapViewListener(this);
 
         addMarker(address);
 
@@ -114,6 +123,11 @@ public class NavigationFragment extends Fragment implements View.OnClickListener
 
                 // Make and add marker
                 Marker marker = new Marker(mapView, address1.getAddressLine(0), line2, latLng);
+                String name = (address1.getFeatureName() == null) ? address : address1.getFeatureName();
+                String phone = address1.getPhone();
+                marker.setInfo(name, address, phone);
+
+
                 marker.setSubDescription("<a href='#'>Navigate Here!</a>");
                 marker.setIcon(new Icon(getActivity(), Icon.Size.LARGE, "marker-stroked", "FF0000"));
                 mapView.addMarker((marker));
@@ -133,5 +147,74 @@ public class NavigationFragment extends Fragment implements View.OnClickListener
         fragmentManager.beginTransaction()
                 .replace(R.id.content_frame, frag)
                 .commit();
+    }
+
+
+    // Methods for MapViewListener
+    @Override
+    public void onShowMarker(MapView pMapView, Marker pMarker)
+    {
+
+    }
+
+    @Override
+    public void onHideMarker(MapView pMapView, Marker pMarker)
+    {
+
+    }
+
+    @Override
+    public void onTapMarker(MapView pMapView, Marker pMarker)
+    {
+
+    }
+
+    @Override
+    public void onLongPressMarker(final MapView pMapView, final Marker pMarker)
+    {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        AlertDialog dialog = builder
+                .setTitle("Add Contact?")
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener()
+                {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which)
+                    {
+                        Intent intent = new Intent(CONTACT_MANAGER_NAME);
+                        intent.putExtra(ContactsContract.Intents.Insert.NAME, pMarker.getName());
+                        intent.putExtra(ContactsContract.Intents.Insert.PHONE, pMarker.getPhone());
+                        intent.putExtra("ADDRESS", pMarker.getAddress());
+
+                        startActivity(intent);
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener()
+                {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which)
+                    {
+
+                    }
+                })
+                .create();
+        dialog.show();
+    }
+
+    @Override
+    public void onTapMap(MapView pMapView, ILatLng pPosition)
+    {
+
+    }
+
+    @Override
+    public void onDoubleTapMap(MapView pMapView, ILatLng pPosition)
+    {
+
+    }
+
+    @Override
+    public void onLongPressMap(MapView pMapView, ILatLng pPosition)
+    {
+
     }
 }

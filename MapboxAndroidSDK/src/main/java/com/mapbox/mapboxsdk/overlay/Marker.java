@@ -57,6 +57,10 @@ public class Marker implements MapViewConstants, ClusterItem {
     private boolean bubbleShowing;
     private ItemizedOverlay mParentHolder;
 
+    private String name;
+    private String address;
+    private String phone;
+
     private View.OnClickListener listener;
 
     private Drawable mDefaultPinDrawable;
@@ -593,5 +597,27 @@ public class Marker implements MapViewConstants, ClusterItem {
 
     public View.OnClickListener getListener() {
         return listener;
+    }
+
+    public void setInfo(String name, String address, String phone)
+    {
+        this.name = name == null ? "" : name;
+        this.address = address == null ? "" : address;
+        this.phone = phone == null ? "" : phone;
+    }
+
+    public String getName()
+    {
+        return name;
+    }
+
+    public String getAddress()
+    {
+        return address;
+    }
+
+    public String getPhone()
+    {
+        return phone;
     }
 }
