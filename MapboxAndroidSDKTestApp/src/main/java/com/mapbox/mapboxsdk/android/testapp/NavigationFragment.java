@@ -83,9 +83,8 @@ public class NavigationFragment extends Fragment implements View.OnClickListener
 
         // Setup Map
         mapView = (MapView) view.findViewById(R.id.markersMapView);
-
-        List<Address> addresses = getGeoResults(address);
-        addMarkerFromAddress(addresses.get(0));
+        
+        addMarkerFromAddress(getGeoResults(address).get(0));
 
         for (Marker m : markers) {
             m.setDescOnClickListener(this);
