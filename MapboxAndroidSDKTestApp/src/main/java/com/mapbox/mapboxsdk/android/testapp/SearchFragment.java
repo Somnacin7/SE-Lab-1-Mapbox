@@ -55,7 +55,7 @@ public class SearchFragment extends Fragment {
                 // This is where search function stuff goes.
                 String userInput = address.getText().toString();
 
-                if (checkInput(userInput))
+                if (isInputValid(userInput))
                 {
                     Fragment f = NavigationFragment.newInstance(userInput);
 
@@ -78,9 +78,8 @@ public class SearchFragment extends Fragment {
 
     }
 
-    private boolean checkInput(String input)
+    private boolean isInputValid(String input)
     {
-
         boolean isAlphanumeric = true;
         for (int i = 0; i < input.length(); i++)
         {
