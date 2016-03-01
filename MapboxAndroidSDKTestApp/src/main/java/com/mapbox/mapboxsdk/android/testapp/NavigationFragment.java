@@ -83,7 +83,7 @@ public class NavigationFragment extends Fragment implements View.OnClickListener
 
         // Setup Map
         mapView = (MapView) view.findViewById(R.id.markersMapView);
-        
+
         addMarkerFromAddress(getGeoResults(address).get(0));
 
         for (Marker m : markers) {
@@ -111,17 +111,18 @@ public class NavigationFragment extends Fragment implements View.OnClickListener
 
     /* Takes an address as input and makes a marker out of the address. */
     private void addMarkerFromAddress(Address address) {
-        LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
+        latLng = new LatLng(address.getLatitude(), address.getLongitude());
         mapView.setCenter(latLng);
         mapView.setZoom(14);
         String line2 = ((address.getLocality() != null) ? address.getLocality() : "") + ", " +
-                ((address.getAdminArea() != null) ? address.getLocality() : "");
+                ((address.getAdminArea() != null) ? address.getAdminArea() : "");
 
         //Make marker and add to map.
         Marker marker = new Marker(mapView, address.getAddressLine(0), line2, latLng);
         marker.setSubDescription(getResources().getString(R.string.navigate_link));
         marker.setIcon(new Icon(getActivity(), Icon.Size.LARGE, getResources().getString(R.string.marker_type), getResources().getString(R.string.marker_color)));
         mapView.addMarker(marker);
+        markers.add(marker);
     }
 
     @Override

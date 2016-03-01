@@ -2,6 +2,7 @@ package com.mapbox.mapboxsdk.views;
 
 import android.content.Context;
 import android.text.Html;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -147,10 +148,11 @@ public class InfoWindow {
         //handle sub-description, hiding or showing the text view:
         subDescText = (TextView) mView.findViewById(mSubDescriptionId);
         String subDesc = overlayItem.getSubDescription();
+        Log.d("Broken Ref", "I hate this game");
         if ("".equals(subDesc)) {
+            Log.d("Broken Refactors", "onOpen: In if statement for if \"\".equals(subDesc)");
             subDescText.setVisibility(View.GONE);
         } else {
-            subDescText.setClickable(true);
             subDescText.setText(Html.fromHtml(subDesc));
             subDescText.setVisibility(View.VISIBLE);
             if (overlayItem.getListener() != null) {
