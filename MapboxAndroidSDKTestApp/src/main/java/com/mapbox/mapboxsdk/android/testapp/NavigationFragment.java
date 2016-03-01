@@ -180,7 +180,9 @@ public class NavigationFragment extends Fragment implements View.OnClickListener
                     @Override
                     public void onClick(DialogInterface dialog, int which)
                     {
-                        Intent intent = new Intent(CONTACT_MANAGER_NAME);
+                        Intent intent = new Intent(ContactsContract.Intents.Insert.ACTION);
+                        intent.setType(ContactsContract.RawContacts.CONTENT_TYPE);
+
                         intent.putExtra(ContactsContract.Intents.Insert.NAME, pMarker.getName());
                         intent.putExtra(ContactsContract.Intents.Insert.PHONE, pMarker.getPhone());
                         intent.putExtra("ADDRESS", pMarker.getAddress());
