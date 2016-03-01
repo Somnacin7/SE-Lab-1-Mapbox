@@ -6,10 +6,13 @@ import android.location.Geocoder;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.Toast;
 
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.overlay.Icon;
@@ -20,14 +23,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public class NavigationFragment extends Fragment {
+public class NavigationFragment extends Fragment implements View.OnClickListener
+{
 
     private MapView mapView;
+    private List<Marker> markers;
 
     private static final String ARG_ADDRESS = "address";
 
     // TODO: Rename and change types of parameters
     private String address;
+    private LatLng latLng;
 
 
     public NavigationFragment() {
@@ -56,18 +62,33 @@ public class NavigationFragment extends Fragment {
         if (getArguments() != null) {
             address = getArguments().getString(ARG_ADDRESS);
         }
+
+        markers = new ArrayList<>();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_markers, container, false);
+
+        InputMethodManager inputManager =
+                (InputMethodManager) getActivity().getApplicationContext().
+                        getSystemService(Context.INPUT_METHOD_SERVICE);
+        inputManager.hideSoftInputFromWindow(
+                getActivity().getCurrentFocus().getWindowToken(),
+                InputMethodManager.HIDE_NOT_ALWAYS);
 
         // Setup Map
         mapView = (MapView) view.findViewById(R.id.markersMapView);
 
         addMarker(address);
+
+        for (Marker m : markers) {
+            m.setDescOnClickListener(this);
+        }
 
         return view;
     }
@@ -84,20 +105,28 @@ public class NavigationFragment extends Fragment {
             }
             if (geoResults.size()>0) {
                 Address address1 = geoResults.get(0);
-                LatLng latlng = new  LatLng(address1.getLatitude(), address1.getLongitude());
-                mapView.setCenter(latlng);
+                latLng = new  LatLng(address1.getLatitude(), address1.getLongitude());
+                mapView.setCenter(latLng);
                 mapView.setZoom(14);
 
-                String line2 = address1.getLocality() + ", " + address1.getAdminArea();// + '\n' + Html.fromHtml("<a href='#'>Navigate Here</a>");
-
                 // Make and add marker
-                Marker marker = new Marker(mapView, address1.getAddressLine(0), line2, latlng);
+                Marker marker = new Marker(mapView, address1.getAddressLine(0),((address1.getLocality() != null) ? address1.getLocality() : "") + ", " +
+                        ((address1.getAdminArea() != null) ? address1.getLocality() : "") , latLng);
+                marker.setSubDescription("<a href='#'>Navigate Here!</a>");
                 marker.setIcon(new Icon(getActivity(), Icon.Size.LARGE, "marker-stroked", "FF0000"));
                 mapView.addMarker((marker));
-
+                markers.add(marker);
             }
         } catch (Exception e) {
             System.out.print(e.getMessage());
         }
+    }
+
+    @Override
+    public void onClick(View v)
+    {
+        getActivity().getSupportFragmentManager().beginTransaction()
+                .replace(R.id.content_frame, RouteTestFragment.newInstance(latLng.getLatitude(), latLng.getLongitude()))
+                .commit();
     }
 }

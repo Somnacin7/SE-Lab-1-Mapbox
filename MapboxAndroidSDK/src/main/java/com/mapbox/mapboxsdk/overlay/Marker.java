@@ -8,6 +8,8 @@ import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
+import android.view.View;
+import android.widget.TextView;
 
 import com.mapbox.mapboxsdk.R;
 import com.mapbox.mapboxsdk.clustering.ClusterItem;
@@ -54,6 +56,8 @@ public class Marker implements MapViewConstants, ClusterItem {
     private Object mRelatedObject; //reference to an object (of any kind) linked to this item.
     private boolean bubbleShowing;
     private ItemizedOverlay mParentHolder;
+
+    private View.OnClickListener listener;
 
     private Drawable mDefaultPinDrawable;
     protected int mDefaultPinRes = R.drawable.defpin;
@@ -417,6 +421,10 @@ public class Marker implements MapViewConstants, ClusterItem {
         return mMarker.getIntrinsicHeight();
     }
 
+    public void setDescOnClickListener(View.OnClickListener listener) {
+        this.listener = listener;
+    }
+
     /**
      * Get the current position of the marker in pixels
      *
@@ -581,5 +589,9 @@ public class Marker implements MapViewConstants, ClusterItem {
                 mapView.invalidateMapCoordinates(newRect);
             }
         });
+    }
+
+    public View.OnClickListener getListener() {
+        return listener;
     }
 }

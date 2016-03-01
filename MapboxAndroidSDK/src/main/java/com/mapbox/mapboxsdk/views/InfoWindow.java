@@ -1,11 +1,14 @@
 package com.mapbox.mapboxsdk.views;
 
 import android.content.Context;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.overlay.Marker;
 
@@ -28,6 +31,7 @@ public class InfoWindow {
     static int mDescriptionId = 0;
     static int mSubDescriptionId = 0;
     static int mImageId = 0;
+    private TextView subDescText;
 
     public InfoWindow(int layoutResId, MapView mapView) {
         mMapView = mapView;
@@ -134,25 +138,34 @@ public class InfoWindow {
      *
      * @param overlayItem the tapped overlay item
      */
-    public void onOpen(Marker overlayItem) {
+    public void onOpen(final Marker overlayItem) {
         String title = overlayItem.getTitle();
         ((TextView) mView.findViewById(mTitleId /*R.id.title*/)).setText(title);
         String snippet = overlayItem.getDescription();
         ((TextView) mView.findViewById(mDescriptionId /*R.id.description*/)).setText(snippet);
 
         //handle sub-description, hiding or showing the text view:
-        TextView subDescText = (TextView) mView.findViewById(mSubDescriptionId);
+        subDescText = (TextView) mView.findViewById(mSubDescriptionId);
         String subDesc = overlayItem.getSubDescription();
         if ("".equals(subDesc)) {
             subDescText.setVisibility(View.GONE);
         } else {
-            subDescText.setText(subDesc);
+            subDescText.setClickable(true);
+            subDescText.setText(Html.fromHtml(subDesc));
             subDescText.setVisibility(View.VISIBLE);
+            if (overlayItem.getListener() != null) {
+                subDescText.setClickable(true);
+                subDescText.setOnClickListener(overlayItem.getListener());
+            }
         }
     }
 
     public void onClose() {
         //by default, do nothing
+    }
+
+    public TextView getSubDescText(){
+        return subDescText;
     }
 
     public InfoWindow setBoundMarker(Marker aBoundMarker) {
