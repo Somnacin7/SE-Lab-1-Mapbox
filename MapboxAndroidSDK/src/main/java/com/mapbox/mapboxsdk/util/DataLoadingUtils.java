@@ -43,22 +43,7 @@ public class DataLoadingUtils {
      * @throws JSONException
      */
     public static FeatureCollection loadGeoJSONFromUrl(final String url) throws IOException, JSONException {
-        if (TextUtils.isEmpty(url)) {
-            throw new NullPointerException("No GeoJSON URL passed in.");
-        }
-
-        if (UtilConstants.DEBUGMODE) {
-            Log.d(DataLoadingUtils.class.getCanonicalName(), "Mapbox SDK downloading GeoJSON URL: " + url);
-        }
-
-        InputStream is;
-        if (url.toLowerCase(Locale.US).indexOf("http") == 0) {
-            is = NetworkUtils.getHttpURLConnection(new URL(url)).getInputStream();
-        } else {
-            is = new URL(url).openStream();
-        }
-        BufferedReader rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
-        String jsonText = readAll(rd);
+        String jsonText = LoadJsonTextFromUrl(url);
 
         FeatureCollection parsed = (FeatureCollection) GeoJSON.parse(jsonText);
         if (UtilConstants.DEBUGMODE) {
@@ -69,13 +54,29 @@ public class DataLoadingUtils {
     }
 
     /**
-     * Load GeoJSON from URL (in synchronous manner) and return JsonObject
+     * Load GeoJSON from URL (in synchronous manner) and return string
      * @param url URL of GeoJSON data
      * @return JsonObject
      * @throws IOException
      * @throws JSONException
      */
     public static JSONObject loadJSONFromUrl(final String url) throws IOException, JSONException {
+        String jsonText = LoadJsonTextFromUrl(url);
+
+        JSONObject parsed = new JSONObject(jsonText);
+
+        return parsed;
+    }
+
+    /**
+     * Load GeoJSON from URL (in synchronous manner) and return JsonObject
+     * @param url URL of GeoJSON data
+     * @return json text as string
+     * @throws IOException
+     * @throws JSONException
+     */
+    static String LoadJsonTextFromUrl(final String url) throws IOException, JSONException
+    {
         if (TextUtils.isEmpty(url)) {
             throw new NullPointerException("No GeoJSON URL passed in.");
         }
@@ -91,12 +92,9 @@ public class DataLoadingUtils {
             is = new URL(url).openStream();
         }
         BufferedReader rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
-        String jsonText = readAll(rd);
-
-        JSONObject parsed = new JSONObject(jsonText);
-
-        return parsed;
+        return readAll(rd);
     }
+
 
     /**
      * Load GeoJSON from URL (in synchronous manner) and return GeoJSON FeatureCollection

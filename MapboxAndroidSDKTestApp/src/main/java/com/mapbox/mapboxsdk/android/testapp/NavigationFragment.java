@@ -103,7 +103,22 @@ public class NavigationFragment extends Fragment implements View.OnClickListener
                 // While loop to execute until connection go through.
                 geoResults = geocoder.getFromLocationName(address, 1);
             }
-        } catch(Exception e) {
+
+            if (geoResults.size()>0) {
+                Address address1 = geoResults.get(0);
+                latLng = new  LatLng(address1.getLatitude(), address1.getLongitude());
+                mapView.setCenter(latLng);
+                mapView.setZoom(14);
+
+                // Make and add marker
+                Marker marker = new Marker(mapView, address1.getAddressLine(0),((address1.getLocality() != null) ? address1.getLocality() : "") + ", " +
+                        ((address1.getAdminArea() != null) ? address1.getLocality() : "") , latLng);
+                marker.setSubDescription("<a href='#'>Navigate Here!</a>");
+                marker.setIcon(new Icon(getActivity(), Icon.Size.LARGE, "marker-stroked", "FF0000"));
+                mapView.addMarker((marker));
+                markers.add(marker);
+            }
+        } catch (Exception e) {
             System.out.print(e.getMessage());
         }
         return geoResults;
@@ -128,11 +143,8 @@ public class NavigationFragment extends Fragment implements View.OnClickListener
     @Override
     public void onClick(View v)
     {
-        RouteTestFragment frag = RouteTestFragment.newInstance(latLng.getLatitude(), latLng.getLongitude());
-
-        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-        fragmentManager.beginTransaction()
-                .replace(R.id.content_frame, frag)
+        getActivity().getSupportFragmentManager().beginTransaction()
+                .replace(R.id.content_frame, RouteTestFragment.newInstance(latLng.getLatitude(), latLng.getLongitude()))
                 .commit();
     }
 }
