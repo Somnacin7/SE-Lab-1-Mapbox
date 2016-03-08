@@ -17,8 +17,8 @@ import java.util.regex.Pattern;
 public class SearchFragment extends Fragment {
 
     private EditText address;
-    private Button search;
     private MapView mapView;
+    private Button searchButton;
 
     public SearchFragment() {
         // Required empty public constructor
@@ -47,26 +47,26 @@ public class SearchFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_navigation, container, false);
         address = (EditText)view.findViewById(R.id.navigationAddressBox);
-        search = (Button)view.findViewById(R.id.navigationSearchButton);
-        search.setOnClickListener(new View.OnClickListener() {
+
+        searchButton = (Button)view.findViewById(R.id.navigationSearchButton);
+        searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
                 // This is where search function stuff goes.
                 String userInput = address.getText().toString();
 
-                if (checkInput(userInput))
+
+                if (isInputValid(userInput))
                 {
-                    Fragment f = NavigationFragment.newInstance(userInput);
+                    Fragment frag = NavigationFragment.newInstance(userInput);
 
                     // Insert the fragment by replacing any existing fragment
-                    FragmentManager fm = getActivity().getSupportFragmentManager();
-                    fm.beginTransaction()
-                            .replace(R.id.content_frame, f)
+                    FragmentManager fragm = getActivity().getSupportFragmentManager();
+                    fragm.beginTransaction()
+                            .replace(R.id.content_frame, frag)
                             .commit();
-                }
-                else
-                {
+                } else {
                     Toast.makeText(getActivity().getApplicationContext(),
                             "Address must be alphanumeric, and a length between 1 and 50",
                             Toast.LENGTH_LONG).show();
@@ -78,9 +78,8 @@ public class SearchFragment extends Fragment {
 
     }
 
-    private boolean checkInput(String input)
+    private boolean isInputValid(String input)
     {
-
         boolean isAlphanumeric = true;
         for (int i = 0; i < input.length(); i++)
         {
@@ -92,8 +91,7 @@ public class SearchFragment extends Fragment {
             ))
                 isAlphanumeric = false;
         }
-        boolean isCorrectLength = input.length() > 0 && input.length() <= 50;
 
-        return isAlphanumeric && isCorrectLength;
+        return isAlphanumeric && (input.length() > 0 && input.length() <= 50);
     }
 }

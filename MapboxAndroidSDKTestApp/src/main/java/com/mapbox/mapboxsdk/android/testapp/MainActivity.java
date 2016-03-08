@@ -19,7 +19,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 	private ActionBarDrawerToggle mDrawerToggle;
 	private NavigationView        mNavigationView;
 	private Menu                  testFragmentNames;
-	private int selectedFragmentIndex = 0;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -89,15 +88,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 	/**
 	 * Swaps fragments in the main content view
 	 */
-	private void selectItem(int position) {
-		final MenuItem menuItem = mNavigationView.getMenu().findItem(position);
+	private void selectItem(int selectedFragmentIndex) {
+		final MenuItem menuItem = mNavigationView.getMenu().findItem(selectedFragmentIndex);
 		setTitle(menuItem.getTitle());
 
-		selectedFragmentIndex = position;
 		// Create a new fragment and specify the planet to show based on position
 		Fragment fragment;
 
-		switch (position) {
+		switch (selectedFragmentIndex) {
 			case 0:
 				fragment = new MainTestFragment();
 				break;

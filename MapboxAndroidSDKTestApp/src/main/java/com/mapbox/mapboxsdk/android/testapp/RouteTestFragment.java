@@ -66,12 +66,10 @@ public class RouteTestFragment extends Fragment
         Bundle bundle = getArguments();
         double lat = bundle.getDouble(LAT_KEY);
         double lng = bundle.getDouble(LNG_KEY);
-        destination = new LatLng(lat, lng);
 
+        new PaintRoute().execute(new LatLng(lat, lng),mv.getUserLocation());
 
-        new PaintRoute().execute(destination,mv.getUserLocation());
-
-        // Use this for debug since I gps location isn't working with emulator
+        // Use this for debug since gps location isn't working with emulator
         /*
         LatLng latlong2 = new LatLng(39.157518,-84.736773);
         mv.setCenter(latlong2);
@@ -84,25 +82,21 @@ public class RouteTestFragment extends Fragment
 
     class PaintRoute extends AsyncTask<LatLng,Void,JSONObject>
     {
-        // Get JSON from api and
+        // Get JSON from api
         @Override
         protected JSONObject doInBackground(LatLng... params) {
             JSONObject json = new JSONObject();
             try {
-
                 // Get json from mapbox directions api
                 String waypoints = Double.toString(params[0].getLongitude()) + "," + Double.toString(params[0].getLatitude()) + ";" +  Double.toString(params[1].getLongitude()) + "," + Double.toString(params[1].getLatitude());
-                String url = "https://api.mapbox.com/v4/directions/mapbox.driving/" + waypoints + ".json?access_token=pk.eyJ1IjoiYnJhbmRpbyIsImEiOiJjaWs1d3Qwa3EwMGJycDdrczZnbGRpdW83In0.jUQ6sl6aS2r-t23XFKOQ7Q";
-                json = DataLoadingUtils.loadJSONFromUrl(url);
+                json = DataLoadingUtils.loadJSONFromUrl("https://api.mapbox.com/v4/directions/mapbox.driving/" + waypoints + ".json?access_token=pk.eyJ1IjoiYnJhbmRpbyIsImEiOiJjaWs1d3Qwa3EwMGJycDdrczZnbGRpdW83In0.jUQ6sl6aS2r-t23XFKOQ7Q");
                 return json;
-
             } catch (Exception e) {
 
                 e.printStackTrace();
 
             }
             return json;
-
         }
 
         // show dialog and draw route
@@ -123,9 +117,8 @@ public class RouteTestFragment extends Fragment
                     for (int i = 0; i < routes.length(); i++)
                     {
                         int distInMeters = Integer.parseInt(JSONUtils.optString(routes.getJSONObject(i), "distance"));
-                        double distInMiles = distInMeters * .000621371;
 
-                        routesText.add(String.format("Route " + (i + 1) + "\t %1$.1f miles", distInMiles));
+                        routesText.add(String.format("Route " + (i + 1) + "\t %1$.1f miles", distInMeters * .000621371));
                     }
 
                     AlertDialog dialog = new AlertDialog.Builder(getActivity())
@@ -137,10 +130,7 @@ public class RouteTestFragment extends Fragment
                                 {
                                     try
                                     {
-                                        String route = JSONUtils.optString(routes.getJSONObject(which), "geometry");
-
-
-                                        FeatureCollection featureCollection = (FeatureCollection) GeoJSON.parse(featureCollectionString + destination + "," + feature + route + "}" + "," + origin + "] }");
+                                        FeatureCollection featureCollection = (FeatureCollection) GeoJSON.parse(featureCollectionString + destination + "," + feature + JSONUtils.optString(routes.getJSONObject(0), "geometry") + "}" + "," + origin + "] }");
                                         ArrayList<Object> uiObjects = DataLoadingUtils.createUIObjectsFromGeoJSONObjects(featureCollection, null);
                                         for (Object obj : uiObjects)
                                         {
@@ -170,9 +160,7 @@ public class RouteTestFragment extends Fragment
                 {
                     try
                     {
-                        String route = JSONUtils.optString(routes.getJSONObject(0), "geometry");
-
-                        FeatureCollection featureCollection = (FeatureCollection) GeoJSON.parse(featureCollectionString + destination + "," + feature + route + "}" + "," + origin + "] }");
+                        FeatureCollection featureCollection = (FeatureCollection) GeoJSON.parse(featureCollectionString + destination + "," + feature + JSONUtils.optString(routes.getJSONObject(0), "geometry") + "}" + "," + origin + "] }");
                         ArrayList<Object> uiObjects = DataLoadingUtils.createUIObjectsFromGeoJSONObjects(featureCollection, null);
                         for (Object obj : uiObjects)
                         {

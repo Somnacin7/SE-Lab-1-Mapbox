@@ -93,7 +93,7 @@ public class NavigationFragment extends Fragment implements View.OnClickListener
         mapView = (MapView) view.findViewById(R.id.markersMapView);
         mapView.setMapViewListener(this);
 
-        addMarker(address);
+        addMarkerFromAddress(getGeoResults(address).get(0));
 
         for (Marker m : markers) {
             m.setDescOnClickListener(this);
@@ -102,32 +102,29 @@ public class NavigationFragment extends Fragment implements View.OnClickListener
         return view;
     }
 
-    private void addMarker(String address)
-    {
+    /* Searches for and returns a List<Address> of the search results for String address  */
+    private List<Address> getGeoResults(String address) {
         Geocoder geocoder = new Geocoder(getActivity(), Locale.US);
         List<Address> geoResults = new ArrayList<>();
         try {
             // Get the location from the string address
-            while (geoResults.size()==0) {
-
+            while (geoResults.size() == 0) {
+                // While loop to execute until connection go through.
                 geoResults = geocoder.getFromLocationName(address, 1);
             }
+
             if (geoResults.size()>0) {
                 Address address1 = geoResults.get(0);
                 latLng = new  LatLng(address1.getLatitude(), address1.getLongitude());
                 mapView.setCenter(latLng);
                 mapView.setZoom(14);
 
-                String line2 = ((address1.getLocality() != null) ? address1.getLocality() : "") + ", " +
-                        ((address1.getAdminArea() != null) ? address1.getLocality() : "");
-
                 // Make and add marker
-                Marker marker = new Marker(mapView, address1.getAddressLine(0), line2, latLng);
+                Marker marker = new Marker(mapView, address1.getAddressLine(0),((address1.getLocality() != null) ? address1.getLocality() : "") + ", " +
+                        ((address1.getAdminArea() != null) ? address1.getAdminArea() : "") , latLng);
                 String name = (address1.getFeatureName() == null) ? address : address1.getFeatureName();
                 String phone = address1.getPhone();
                 marker.setInfo(name, address, phone);
-
-
                 marker.setSubDescription("<a href='#'>Navigate Here!</a>");
                 marker.setIcon(new Icon(getActivity(), Icon.Size.LARGE, "marker-stroked", "FF0000"));
                 mapView.addMarker((marker));
@@ -136,16 +133,30 @@ public class NavigationFragment extends Fragment implements View.OnClickListener
         } catch (Exception e) {
             System.out.print(e.getMessage());
         }
+        return geoResults;
+    }
+
+    /* Takes an address as input and makes a marker out of the address. */
+    private void addMarkerFromAddress(Address address) {
+        latLng = new LatLng(address.getLatitude(), address.getLongitude());
+        mapView.setCenter(latLng);
+        mapView.setZoom(14);
+        String line2 = ((address.getLocality() != null) ? address.getLocality() : "") + ", " +
+                ((address.getAdminArea() != null) ? address.getAdminArea() : "");
+
+        //Make marker and add to map.
+        Marker marker = new Marker(mapView, address.getAddressLine(0), line2, latLng);
+        marker.setSubDescription(getResources().getString(R.string.navigate_link));
+        marker.setIcon(new Icon(getActivity(), Icon.Size.LARGE, getResources().getString(R.string.marker_type), getResources().getString(R.string.marker_color)));
+        mapView.addMarker(marker);
+        markers.add(marker);
     }
 
     @Override
     public void onClick(View v)
     {
-        RouteTestFragment frag = RouteTestFragment.newInstance(latLng.getLatitude(), latLng.getLongitude());
-
-        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-        fragmentManager.beginTransaction()
-                .replace(R.id.content_frame, frag)
+        getActivity().getSupportFragmentManager().beginTransaction()
+                .replace(R.id.content_frame, RouteTestFragment.newInstance(latLng.getLatitude(), latLng.getLongitude()))
                 .commit();
     }
 
