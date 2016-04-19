@@ -1,5 +1,7 @@
 package com.mapbox.mapboxsdk.android.testapp;
 
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -12,6 +14,9 @@ import android.widget.Toast;
 
 import com.mapbox.mapboxsdk.views.MapView;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 import java.util.regex.Pattern;
 
 public class SearchFragment extends Fragment {
@@ -59,13 +64,37 @@ public class SearchFragment extends Fragment {
 
                 if (isInputValid(userInput))
                 {
-                    Fragment frag = NavigationFragment.newInstance(userInput);
+                    //check to see if what we get back is what we sent.
+                    Geocoder geocoder = new Geocoder(getActivity(), Locale.US);
+                    List<Address> geoResults = new ArrayList<>();
+                    try {
+                        while (geoResults.size() == 0) {
+                            geoResults = geocoder.getFromLocationName(address.getText().toString(), 1);
+                        }
+                        if (geoResults.size() > 0) {
+                            Address address1 = geoResults.get(0);
+                            String whatWeGotBack = ((address1.getAddressLine(0) != null) ? address1.getAddressLine(0) : "" ) + ", " + ((address1.getLocality() != null) ? address1.getLocality() : "") + ", " +
+                                    ((address1.getAdminArea() != null) ? address1.getAdminArea() : "") + " " + ((address1.getPostalCode() != null) ? address1.getPostalCode() : "");
 
-                    // Insert the fragment by replacing any existing fragment
-                    FragmentManager fragm = getActivity().getSupportFragmentManager();
-                    fragm.beginTransaction()
-                            .replace(R.id.content_frame, frag)
-                            .commit();
+                            Toast.makeText(getActivity().getApplicationContext(),
+                                    "You wanted to navigate to: " + userInput + "\nYou are being navigated to: " + whatWeGotBack,
+                                    Toast.LENGTH_LONG).show();
+                                Fragment frag = NavigationFragment.newInstance(userInput);
+
+                                // Insert the fragment by replacing any existing fragment
+                                FragmentManager fragm = getActivity().getSupportFragmentManager();
+                                fragm.beginTransaction()
+                                        .replace(R.id.content_frame, frag)
+                                        .commit();
+
+
+
+                        }
+                    }
+                    catch(Exception e) {
+                        System.out.print(e.getMessage());
+                    }
+
                 } else {
                     Toast.makeText(getActivity().getApplicationContext(),
                             "Address must be alphanumeric, and a length between 1 and 50",
