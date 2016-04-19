@@ -24,16 +24,11 @@ import com.mapbox.mapboxsdk.overlay.Icon;
 import com.mapbox.mapboxsdk.overlay.Marker;
 import com.mapbox.mapboxsdk.views.MapView;
 import com.mapbox.mapboxsdk.views.MapViewListener;
+import com.scottyab.aescrypt.AESCrypt;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-
-import java.security.Key;
-import javax.crypto.spec.SecretKeySpec;
-import javax.crypto.Cipher;
-import javax.crypto.*;
-import sun.misc.*;
 
 public class NavigationFragment extends Fragment implements View.OnClickListener, MapViewListener
 {
@@ -186,15 +181,13 @@ public class NavigationFragment extends Fragment implements View.OnClickListener
 
     }
 
-    private byte[] encrypt(String data) {
+
+    private String encrypt(String data) {
         try{
-            // Begin encryptions
-            String key = "ThisIsABadKey123";
-            Key aesKey = new SecretKeySpec(key.getBytes(), "AES");
-            Cipher cipher = Cipher.getInstance("AES");
-            cipher.init(Cipher.ENCRYPT_MODE, aesKey);
-            byte[] encpMarkerName = cipher.doFinal(data.getBytes());
-            return encpMarkerName;
+            //Begin Encrypt
+            String password = "DrOpP3Db4rB4R14N";
+            String encryptedMsg = AESCrypt.encrypt(password, data);
+            return encryptedMsg;
         }
         catch(Exception e) {
             return null;
@@ -217,18 +210,12 @@ public class NavigationFragment extends Fragment implements View.OnClickListener
                         Intent intent = new Intent(ContactsContract.Intents.Insert.ACTION);
                         intent.setType(ContactsContract.RawContacts.CONTENT_TYPE);
 
-                        // Get strings to encrypt
-                        String pMarkerName = pMarker.getName();
-                        String pMarkerPhone = pMarker.getPhone();
-                        String pMarkerAddress = pMarker.getAddress();
-
-
                         intent.putExtra(ContactsContract.Intents.Insert.NAME, encrypt(pMarker.getName()));
                         intent.putExtra(ContactsContract.Intents.Insert.PHONE, encrypt(pMarker.getPhone()));
                         intent.putExtra("ADDRESS", encrypt(pMarker.getAddress()));
 
                         startActivity(intent);
-                        
+
                     }
                 })
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener()
